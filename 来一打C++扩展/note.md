@@ -40,7 +40,7 @@ node-gyp命令：
 | list      | Prints a listing of the currently installed node development files |
 | remove    | Removes the node development files for the specified version |
 
-运行node-gyp还需要Python和gcc的支持，通常Mac无需手动安装，但是如果出现Python或者gcc的版本问题还是需要手动解决，具体的安装方式自行google，这里就不多说明了。  
+运行node-gyp还需要Python和gcc的支持，通常Mac无需手动安装，但是如果出现Python或者gcc的版本问题还是需要手动解决，具体的安装方式自行google，这里就不多说明了。    
 PS：升级gcc踩坑较多，这里有一个相对简单的升级指南：[为CentOS 6、7升级gcc至4.8、4.9、5.2、6.3、7.3等高版本](https://www.yuque.com/loveqq/cwh6py/weicentos-67sheng-jigcc-zhi4849526373deng-gao-ban)
 
 ##### vs code开发C++
@@ -103,3 +103,52 @@ npm i node-pre-gyp -D
 上面的binary定义仅作推荐，实际使用的binary定义可以参考官方文档自行定义
 
 ##### V8介绍
+
+###### Isolate
+
+在Chrome V8中，引擎实例的数据类型叫Isolate，全称：Isolate Instance。与别的Isolate Instance完全隔离，互不干扰。Isolate就是一个V8引擎实例，也可以理解为引擎本体。每个Isolate内部拥有完全独立的各种状态，如堆管理、垃圾回收等。
+
+在进行C++扩展开发的时候，已经处于V8环境中，可以直接获取Isolate，常见的做法如下：
+
+```C++
+void Method(const v8::FunctionCallbackInfo<v8::Value> &args) {
+  Isolate* isolate = args.GetIsolate();
+  // ...
+}
+```
+
+###### Context
+
+Context定义了JavaScrip的t执行环境，创建的时候需要指定属于哪个实例：
+
+```C++
+void Method(const v8::FunctionCallbackInfo<v8::Value> &args) {
+  v8::Isolate* isolate = args.GetIsolate();
+  Local<Context> context = v8::Context::New(isolate);
+  // Local<Context> context = ioslate->GetCurrentContext();
+  // ...
+}
+```
+
+###### Handle（句柄）
+
+Handle：JavaScript数据对象在堆内存中的引用。
+
+###### Template
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

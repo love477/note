@@ -1,5 +1,3 @@
-
-
 # golang
 
 建议阅读官方文档:https://golang.org/doc  
@@ -65,16 +63,63 @@ source ~/.zshrc
 
 ### 数组
 
+
+
 ### slice
+
+
 
 ### json
 
+
+
+## 函数
+
+### 可变参数
+
+在声明函数的时候，在参数列表的最后一个参数类型前加上...，表示该函数可以接受任意数量的该类型参数。
+
+```go
+func Sum(values ...int) int {
+	sum := 0
+	for _, val := range values {
+		sum += val
+	}
+	return sum
+}
+```
+
+
+
+### Deferred函数
+
+defer定义的函数调用会在函数执行完/Panic异常退出前执行，主要的用途是确保函数执行完后资源被释放，也可以用于Panic异常的捕获处理。若是在同一个函数中定义了多个defer，则按照LIFO（Last In First Out）的顺序执行定义的defer。例：
+
+```go
+for i := 0; i < 5; i++ {
+    defer fmt.Printf("%d ", i)
+}
+// 最终的输出为：4 3 2 1 0
+```
+
+### Panic异常
+
+Go的运行时错误（数组越界、空指针等）会引起Panic异常，当发生Panic异常时，程序会中断执行，并立即执行该goroutine中的延迟函数（defer）。除了运行时会触发Panic异常，也可以手动调用panic函数触发Panic异常。
+
+### Recover捕获异常
+
+
+
+
+
 ## 并发编程
+
 ### goroutine
+
 在go中，每一个并发的执行单元，叫做一个goroutine。
 
 ### channel
 
+### select
 
-
-## gomod
+C语言中的 select关键字可以同时监听多个文件描述符的可读或者可写的状态，Go中的select与C语言中的有着相似的功能。select关键字让goroutine同时等待多个Channel的可读或者可写，在多个文件或者Channel发生状态改变之前，一直阻塞当前线程或者goroutine。
