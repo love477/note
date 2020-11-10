@@ -134,7 +134,23 @@ void Method(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 Handle：JavaScript数据对象在堆内存中的引用。
 
-###### Template
+**Local(本地句柄)**
+
+Local存在于栈内存中
+
+**MaybeLocal(待实本地句柄)**
+
+Local or empty
+
+**Persistent(持久句柄)**
+
+Persistent在堆内存
+
+###### Template（模版）
+
+Chrome V8的模版指的是在上下文中对JavaScript对象、函数的一个模具。使用模版将C++的函数或者数据结构包裹进JavaScript的对象中。
+
+
 
 
 
