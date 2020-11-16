@@ -1,5 +1,3 @@
-
-
 # Node
 
 ## C++ addons
