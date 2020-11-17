@@ -12,13 +12,58 @@
 
 下面进行具体的说明（主要以InnoDB为说明对象）。
 
+## 不单调问题
+
 较早版本的MySQL将AUTO_INCREMENT存储在内存中，存储的是当前的AUTO_INCREMENT的值，当有记录插入时，MySQL客户端会获取该值作为新纪录的ID，同时将该值加一。由于AUTO_INCREMENT是存储在内存中的，当实例重启后，该值被清除。当实例重启后第一次插入数据时，客户端会根据当前表的数据重新恢复AUTO_INCREMENT的值，具体的做法是：查找当前表ID的最大值，将其加一后最为带插入记录的主键并作为AUTO_INCREMENT的值。使用的语句如下：
 
 ```mysql
 SELECT MAX(ai_col) FROM table_name FOR UPDATE;
 ```
 
-这样就会导致表的ID不连续，举个例子：
+这样就会使表的ID不单调，从而导致数据库的数据不一致，举个例子，现在有两张表：
+
+```sql
+// 用户行程
+create table `user_itinerary` (
+	`id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `car_itinerary_id` bigint(20) NOT NULL,
+  ...
+  PRIMARY KEY(`id`),
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+// 车辆行程
+create table `car_itinerary` (
+	`id` bigint(20) NOT NULL AUTO_INCREMENT,
+  ...
+  PRIMARY KEY(`id`),
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4
+```
+
+假定，现在car_itinerary的AUTO_INREMENT = 1000，此时新增一条行程记录：
+
+```sql
+insert into car_itinerary(id, ...) values(null, ...); // 新增数据后AUTO_INCREMENT = 10001
+update user_itinerary set car_itinerary_id = 1000 where id=1000;
+
+// 由于某些原因，删除了一条车辆的行程数据
+delete from car_itinerary where id = 1000;
+```
+
+若此时MySQL实例重启，由于AUTO_INREMENT是在内存中的，所以car_itinerary表的AUTO_INREMENT数据清楚，MySQL会使用car_itinerary表中id的最大值恢复AUTO_INREMENT的值，此时id的最大值为：1000，所以此时car_itinerary的AUTO_INREMENT为1000。后续新增的car_itinerary的记录的id会从1000开始自增，而在user_itinerary表中已经引用了car_itinerary_id=1000的数据，所以会导致user_itinerary表中出现错误的car-itinerary记录。
+
+庆幸的是，这个问题官方已经在MySQL8.0的版本中修复了：
+
+```
+In MySQL 8.0, this behavior is changed. The current maximum auto-increment counter value is written to the redo log each time it changes and is saved to an engine-private system table on each checkpoint. These changes make the current maximum auto-increment counter value persistent across server restarts.
+```
+
+大致的意思是：，`AUTO_INCREMENT` 计数器的初始化行为发生了改变，每次计数器的变化都会写入到系统的重做日志（Redo log）并在每个检查点存储在引擎私有的系统表中。
+
+当 MySQL 服务被重启或者处于崩溃恢复时，它可以从持久化的检查点和重做日志中恢复出最新的 `AUTO_INCREMENT` 计数器，避免出现不单调的主键也解决了这里提到的问题。
+
+## 不连续问题
+
+自增id不连续的问题主要是由数据库并发写入导致的。这个现象背后的原因也很简单，虽然在获取 `AUTO_INCREMENT` 时会加锁，但是该锁是语句锁，它的目的是保证 `AUTO_INCREMENT` 的获取不会导致线程竞争，而不是保证 MySQL 中主键的连续。
 
 
 
