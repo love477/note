@@ -29,7 +29,7 @@ Run `nvm use --delete-prefix v10.23.0` to unset it.
 There is one more edge case causing this issue, and that's a **mismatch between the `$HOME` path and the user's home directory's actual name.
 ```
 
-大致的意识就是系统的环境变量$HOME与你当前实际工作的home目录不一致，将$HOME的值修改为当前实际的home路径即可。
+大致就是系统的环境变量$HOME与你当前实际工作的home目录不一致，将$HOME的值修改为当前实际的home路径即可。
 
 
 
