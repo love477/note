@@ -148,21 +148,6 @@ Persistent在堆内存
 
 Chrome V8的模版指的是在上下文中对JavaScript对象、函数的一个模具。使用模版将C++的函数或者数据结构包裹进JavaScript的对象中。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### N-API的使用
 
 
