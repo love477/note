@@ -1,3 +1,5 @@
+
+
 # Redis为什么选择单线程模型
 
 官方在Redis的FAQ中有回答这个问题：
@@ -18,3 +20,4 @@ It's not very frequent that CPU becomes your bottleneck with Redis, as usually R
 2. Redis v6.0（正式在网络模型中实现 I/O 多线程）
 
 所以，现在说Redis是单线程，其实不太准确，但是Redis最初单线程的设计思想还是值得我们借鉴的。
+
